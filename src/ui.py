@@ -56,7 +56,6 @@ def display_game_view():
                 print("White won")
                 break
             logic.board.push_uci(comp_move)
-            print("after", logic.board.fen())
             from_square = comp_move[:2]
             to_square = comp_move[2:4]
             update_rep(square_to_piece[from_square], square_to_piece_name[from_square], to_square, from_square)
@@ -65,7 +64,6 @@ def display_game_view():
             blit_board_and_pieces(screen, "", "")
             if handle_promotion(comp_move, square_to_piece_name[to_square], promoted_piece_count):
                 promoted_piece_count += 1
-                logic.make_move(from_square + to_square + 'q')
             pg.display.update()
             white_to_move = True
         else:

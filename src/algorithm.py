@@ -3,13 +3,14 @@ import random
 # TODO: get random opening move instead of fixed
 import chess
 import chess.polyglot as book
+from logic import get_legal_moves
 
 def get_eval(pos):
   if not pos.is_game_over():
     material = get_material_points(pos.fen())
     king_safety = get_king_safety(pos)
     center_control = get_center_control(pos)
-    return material + king_safety + center_control
+    return 2 * material + king_safety + center_control
   elif pos.is_checkmate():
     print("Search found checkmate")
     if pos.turn == chess.WHITE:
@@ -42,7 +43,7 @@ def minimax(pos, depth, isMax, alpha = -100000, beta = 100000):
       # is maximizing player
       maxEval = -100000
       bestMove = ""
-      for move in list(pos.legal_moves):
+      for move in get_legal_moves(pos):
         pos.push_uci(str(move.uci()))
         lastMove = str(move.uci())
         t = minimax(pos, depth - 1, not isMax)
@@ -58,7 +59,7 @@ def minimax(pos, depth, isMax, alpha = -100000, beta = 100000):
       # is minimizing player
       minEval = 100000
       bestMove = ""
-      for move in list(pos.legal_moves):
+      for move in get_legal_moves(pos):
         pos.push_uci(str(move.uci()))
         lastMove = str(move.uci())
         t = minimax(pos, depth - 1, not isMax)
@@ -71,9 +72,7 @@ def minimax(pos, depth, isMax, alpha = -100000, beta = 100000):
         pos.pop()
       return (bestMove, minEval)
 
-def get_material_points(fen):
-  value = 0
-  piece_values = {
+piece_values = {
     "P": 1,
     "N": 3,
     "B": 4,
@@ -85,6 +84,10 @@ def get_material_points(fen):
     "r": -5,
     "q": -8,
   }
+
+def get_material_points(fen):
+  value = 0
+  global piece_values
   for char in fen:
     if char in piece_values.keys():
       value += piece_values[char]
@@ -92,9 +95,9 @@ def get_material_points(fen):
 
 def get_king_safety(pos):
   if pos.turn == chess.WHITE and pos.is_check():
-    return -4
+    return -1
   elif pos.turn == chess.BLACK and pos.is_check():
-    return 4
+    return 1
   else:
     return 0
 
